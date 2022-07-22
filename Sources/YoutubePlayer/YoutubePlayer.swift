@@ -8,6 +8,30 @@
 import UIKit
 import WebKit
 
+public extension Bundle {
+
+
+    
+    class func resourcesBundle() -> Bundle? {
+        #if SWIFT_PACKAGE
+        // Preprocessor definition documented here:
+        // https://github.com/apple/swift-package-manager/blob/main/Documentation/Usage.md#packaging-legacy-code
+        
+        return Bundle.module
+//        return .none
+        #else
+        let rootBundle = Bundle(for: self.self)
+
+        let CocoaPodsBundleName = "YoutubePlayer"
+        if let bundlePath = rootBundle.path(forResource: CocoaPodsBundleName, ofType: "bundle") {
+            return Bundle(path: bundlePath)
+        }
+        else {
+            return rootBundle
+        }
+        #endif
+    }
+}
 open class YoutubePlayerView: UIView {
     private static let blankURL = "about:blank"
     private static let htmlInternalScheme = "ytplayer"
@@ -174,7 +198,7 @@ private extension YoutubePlayerView {
     func loadWebView(with options: YoutubePlayerOptions) throws {
         // Get HTML from player file in bundle
         // Using guard because if this fails it is packaging issue.
-        guard let playerHtmlPath = Bundle.module.url(forResource: "YoutubePlayer", withExtension: "html") else {
+        guard let playerHtmlPath = Bundle.resourcesBundle().url(forResource: "YoutubePlayer", withExtension: "html") else {
             return
         }
 
